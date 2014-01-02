@@ -81,103 +81,105 @@
 
 <p><strong>async-elastic-orm</strong> allows for non-blocking operations which are preferable when creating a high performance server (such as with <a href="http://vertx.io">http://vertx.io</a> ). All operations return a <em>GDSResult</em> or <em>GDSMultiResult</em> with the operations <em>now()</em> or <em>later()</em>. Use <em>later()</em> for non-blocking. The async callbacks are optimized to be used with Java8 lambdas when they become a standard language feature by only having a single method. Error results are returned as a parameter you must check rather than a distinct callback as this seems to make for neater code.</p>
 
-<pre><code>#### Saving a POJO
+<h4>
+<a name="saving-a-pojo-1" class="anchor" href="#saving-a-pojo-1"><span class="octicon octicon-link"></span></a>Saving a POJO</h4>
+
+<pre><code>    POJO pojo = new POJO();
+    new GDS().save(pojo).result().later(new GDSCallback&lt;Key&gt;() {
+
+        @Override
+        public void onSuccess(Key t, Throwable err) {
+            // Check err for errors, the key contains the id
+        }
+    });
 </code></pre>
 
-<pre><code>POJO pojo = new POJO();
-new GDS().save(pojo).result().later(new GDSCallback&lt;Key&gt;() {
+<h4>
+<a name="loading-a-pojo-1" class="anchor" href="#loading-a-pojo-1"><span class="octicon octicon-link"></span></a>Loading a POJO</h4>
 
-    @Override
-    public void onSuccess(Key t, Throwable err) {
-        // Check err for errors, the key contains the id
-    }
-});
+<pre><code>    new GDS().load().fetch(POJO.class, id).later(new GDSCallback&lt;POJO&gt;() {
+
+        @Override
+        public void onSuccess(POJO pojo, Throwable err) {
+            // Check err for errors 
+        }
+    });
 </code></pre>
 
-<pre><code>#### Loading a POJO
+<h4>
+<a name="searching-or-loading-multiple-full-list-callback" class="anchor" href="#searching-or-loading-multiple-full-list-callback"><span class="octicon octicon-link"></span></a>Searching or loading multiple (full list callback)</h4>
+
+<pre><code>    List&lt;POJO&gt; list = new GDS().query(POJO.class).result().laterAsList(new GDSResultListReceiver&lt;POJO&gt;() {
+
+        @Override
+        public void success(List&lt;POJO&gt; list, Throwable err) {
+            // Check err for errors
+        }
+    });
 </code></pre>
 
-<pre><code>new GDS().load().fetch(POJO.class, id).later(new GDSCallback&lt;POJO&gt;() {
+<h4>
+<a name="searching-or-loading-multiple-feeder-callback" class="anchor" href="#searching-or-loading-multiple-feeder-callback"><span class="octicon octicon-link"></span></a>Searching or loading multiple (feeder callback)</h4>
 
-    @Override
-    public void onSuccess(POJO pojo, Throwable err) {
-        // Check err for errors 
-    }
-});
+<pre><code>    List&lt;POJO&gt; list = new GDS().query(POJO.class).result().later(new GDSResultReceiver&lt;POJO&gt;() {
+
+        @Override
+        public boolean receiveNext(POJO pojo) {
+            return true; // return false to stop receiving more
+        }
+
+        @Override
+        public void onError(Throwable err) {
+            // Specific error callback as receiveNext() / finished() already
+            // block this being used as a lambda
+        }
+
+        @Override
+        public void finished() {
+            // Called when all results have been pushed to receiveNext()
+        }
+    });
 </code></pre>
 
-<pre><code>#### Searching or loading multiple (full list callback)
+<h3>
+<a name="batching-async-operations" class="anchor" href="#batching-async-operations"><span class="octicon octicon-link"></span></a>Batching async operations</h3>
+
+<p>There is a <em>GDSBatcher</em> available for batching together multiple async operations so that you do not need a specific handler for each one. This is useful for only running operations when all saves or loads have completed.</p>
+
+<pre><code>        TestParent testParent1 = new TestParent();
+        GDSResult&lt;Key&gt; result1 = getGDS().save().entity(testParent1).result();
+        TestParent testParent2 = new TestParent();
+        GDSResult&lt;Key&gt; result2 = getGDS().save().entity(testParent2).result();
+        TestParent testParent3 = new TestParent();
+        GDSResult&lt;Key&gt; result3 = getGDS().save().entity(testParent3).result();
+        TestParent testParent4 = new TestParent();
+        GDSResult&lt;Key&gt; result4 = getGDS().save().entity(testParent4).result();
+        TestParent testParent5 = new TestParent();
+        GDSResult&lt;Key&gt; result5 = getGDS().save().entity(testParent5).result();
+
+        GDSResult&lt;Boolean&gt; allResult = 
+            new GDSBatcher(result1, result2, result3, result4, result5)
+            .onAllComplete();
+        boolean success = allResult.now();
+
+        Assert.assertEquals(true, success);
+
+        Assert.assertNotNull(testParent1.id);
+        Assert.assertNotNull(testParent2.id);
+        Assert.assertNotNull(testParent3.id);
+        Assert.assertNotNull(testParent4.id);
+        Assert.assertNotNull(testParent5.id);
 </code></pre>
 
-<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).result().laterAsList(new GDSResultListReceiver&lt;POJO&gt;() {
+<h3>
+<a name="more-examples" class="anchor" href="#more-examples"><span class="octicon octicon-link"></span></a>More examples</h3>
 
-    @Override
-    public void success(List&lt;POJO&gt; list, Throwable err) {
-        // Check err for errors
-    }
-});
-</code></pre>
+<p>More examples of usage are available in the tests. Please help by submitting more tests.</p>
 
-<pre><code>#### Searching or loading multiple (feeder callback)
-</code></pre>
+<h3>
+<a name="performance" class="anchor" href="#performance"><span class="octicon octicon-link"></span></a>Performance</h3>
 
-<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).result().later(new GDSResultReceiver&lt;POJO&gt;() {
-
-    @Override
-    public boolean receiveNext(POJO pojo) {
-        return true; // return false to stop receiving more
-    }
-
-    @Override
-    public void onError(Throwable err) {
-        // Specific error callback as receiveNext() / finished() already
-        // block this being used as a lambda
-    }
-
-    @Override
-    public void finished() {
-        // Called when all results have been pushed to receiveNext()
-    }
-});
-</code></pre>
-
-<pre><code>
-### Batching async operations
-There is a *GDSBatcher* available for batching together multiple async operations so that you do not need a specific handler for each one. This is useful for only running operations when all saves or loads have completed.
-</code></pre>
-
-<pre><code>    TestParent testParent1 = new TestParent();
-    GDSResult&lt;Key&gt; result1 = getGDS().save().entity(testParent1).result();
-    TestParent testParent2 = new TestParent();
-    GDSResult&lt;Key&gt; result2 = getGDS().save().entity(testParent2).result();
-    TestParent testParent3 = new TestParent();
-    GDSResult&lt;Key&gt; result3 = getGDS().save().entity(testParent3).result();
-    TestParent testParent4 = new TestParent();
-    GDSResult&lt;Key&gt; result4 = getGDS().save().entity(testParent4).result();
-    TestParent testParent5 = new TestParent();
-    GDSResult&lt;Key&gt; result5 = getGDS().save().entity(testParent5).result();
-
-    GDSResult&lt;Boolean&gt; allResult = new GDSBatcher(result1, result2, result3, result4, result5).onAllComplete();
-    boolean success = allResult.now();
-
-    Assert.assertEquals(true, success);
-
-    Assert.assertNotNull(testParent1.id);
-    Assert.assertNotNull(testParent2.id);
-    Assert.assertNotNull(testParent3.id);
-    Assert.assertNotNull(testParent4.id);
-    Assert.assertNotNull(testParent5.id);
-</code></pre>
-
-<pre><code>
-### More examples
-
-More examples of usage are available in the tests. Please help by submitting more tests.
-
-### Performance
-
-While this library uses reflection, all of the reflection classes are only fetched a single time and then cached for performance. With Java7+, cached reflection calls are not significantly slower than regular method calls. There are performance tests available in the tests. Performance for the Async operation mode appears to be very good and there is not much overhead compared to regular elasicsearch api commands.
-</code></pre>
+<p>While this library uses reflection, all of the reflection classes are only fetched a single time and then cached for performance. With Java7+, cached reflection calls are not significantly slower than regular method calls. There are performance tests available in the tests. Performance for the Async operation mode appears to be very good and there is not much overhead compared to regular elasicsearch api commands.</p>
       </section>
     </div>
 
