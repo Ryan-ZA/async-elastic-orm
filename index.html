@@ -38,11 +38,11 @@
 
 <p>You can either add the jar to your classpath along with the ElasticSearch Java library ( <a href="http://www.elasticsearch.org/download/">http://www.elasticsearch.org/download/</a> ) or you can use maven and add the dependency to your pom:</p>
 
-<pre><code>        &lt;dependency&gt;
-            &lt;groupId&gt;io.github.ryan-za&lt;/groupId&gt;
-            &lt;artifactId&gt;async-elastic-orm&lt;/artifactId&gt;
-            &lt;version&gt;0.1&lt;/version&gt;
-        &lt;/dependency&gt;
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.github.ryan-za&lt;/groupId&gt;
+    &lt;artifactId&gt;async-elastic-orm&lt;/artifactId&gt;
+    &lt;version&gt;0.1&lt;/version&gt;
+&lt;/dependency&gt;
 </code></pre>
 
 <h3>
@@ -60,20 +60,20 @@
 <h4>
 <a name="saving-a-pojo" class="anchor" href="#saving-a-pojo"><span class="octicon octicon-link"></span></a>Saving a POJO</h4>
 
-<pre><code>    POJO pojo = new POJO();
-    new GDS().save(pojo).result().now();
+<pre><code>POJO pojo = new POJO();
+new GDS().save(pojo).result().now();
 </code></pre>
 
 <h4>
 <a name="loading-a-pojo" class="anchor" href="#loading-a-pojo"><span class="octicon octicon-link"></span></a>Loading a POJO</h4>
 
-<pre><code>    POJO pojo = new GDS().load().fetch(POJO.class, id).now();
+<pre><code>POJO pojo = new GDS().load().fetch(POJO.class, id).now();
 </code></pre>
 
 <h4>
 <a name="searching-or-loading-multiple" class="anchor" href="#searching-or-loading-multiple"><span class="octicon octicon-link"></span></a>Searching or loading multiple</h4>
 
-<pre><code>    List&lt;POJO&gt; list = new GDS().query(POJO.class).asList();
+<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).asList();
 </code></pre>
 
 <h3>
@@ -84,61 +84,63 @@
 <h4>
 <a name="saving-a-pojo-1" class="anchor" href="#saving-a-pojo-1"><span class="octicon octicon-link"></span></a>Saving a POJO</h4>
 
-<pre><code>    POJO pojo = new POJO();
-    new GDS().save(pojo).result().later(new GDSCallback&lt;Key&gt;() {
+<pre><code>POJO pojo = new POJO();
+new GDS().save(pojo).result().later(new GDSCallback&lt;Key&gt;() {
 
-        @Override
-        public void onSuccess(Key t, Throwable err) {
-            // Check err for errors, the key contains the id
-        }
-    });
+    @Override
+    public void onSuccess(Key t, Throwable err) {
+        // Check err for errors, the key contains the id
+    }
+});
 </code></pre>
 
 <h4>
 <a name="loading-a-pojo-1" class="anchor" href="#loading-a-pojo-1"><span class="octicon octicon-link"></span></a>Loading a POJO</h4>
 
-<pre><code>    new GDS().load().fetch(POJO.class, id).later(new GDSCallback&lt;POJO&gt;() {
+<pre><code>new GDS().load().fetch(POJO.class, id).later(new GDSCallback&lt;POJO&gt;() {
 
-        @Override
-        public void onSuccess(POJO pojo, Throwable err) {
-            // Check err for errors 
-        }
-    });
+    @Override
+    public void onSuccess(POJO pojo, Throwable err) {
+        // Check err for errors 
+    }
+});
 </code></pre>
 
 <h4>
 <a name="searching-or-loading-multiple-full-list-callback" class="anchor" href="#searching-or-loading-multiple-full-list-callback"><span class="octicon octicon-link"></span></a>Searching or loading multiple (full list callback)</h4>
 
-<pre><code>    List&lt;POJO&gt; list = new GDS().query(POJO.class).result().laterAsList(new GDSResultListReceiver&lt;POJO&gt;() {
+<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).result()
+    .laterAsList(new GDSResultListReceiver&lt;POJO&gt;() {
 
-        @Override
-        public void success(List&lt;POJO&gt; list, Throwable err) {
-            // Check err for errors
-        }
-    });
+    @Override
+    public void success(List&lt;POJO&gt; list, Throwable err) {
+        // Check err for errors
+    }
+});
 </code></pre>
 
 <h4>
 <a name="searching-or-loading-multiple-feeder-callback" class="anchor" href="#searching-or-loading-multiple-feeder-callback"><span class="octicon octicon-link"></span></a>Searching or loading multiple (feeder callback)</h4>
 
-<pre><code>    List&lt;POJO&gt; list = new GDS().query(POJO.class).result().later(new GDSResultReceiver&lt;POJO&gt;() {
+<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).result()
+    .later(new GDSResultReceiver&lt;POJO&gt;() {
 
-        @Override
-        public boolean receiveNext(POJO pojo) {
-            return true; // return false to stop receiving more
-        }
+    @Override
+    public boolean receiveNext(POJO pojo) {
+        return true; // return false to stop receiving more
+    }
 
-        @Override
-        public void onError(Throwable err) {
-            // Specific error callback as receiveNext() / finished() already
-            // block this being used as a lambda
-        }
+    @Override
+    public void onError(Throwable err) {
+        // Specific error callback as receiveNext() / finished() already
+        // block this being used as a lambda
+    }
 
-        @Override
-        public void finished() {
-            // Called when all results have been pushed to receiveNext()
-        }
-    });
+    @Override
+    public void finished() {
+        // Called when all results have been pushed to receiveNext()
+    }
+});
 </code></pre>
 
 <h3>
@@ -146,29 +148,21 @@
 
 <p>There is a <em>GDSBatcher</em> available for batching together multiple async operations so that you do not need a specific handler for each one. This is useful for only running operations when all saves or loads have completed.</p>
 
-<pre><code>        TestParent testParent1 = new TestParent();
-        GDSResult&lt;Key&gt; result1 = getGDS().save().entity(testParent1).result();
-        TestParent testParent2 = new TestParent();
-        GDSResult&lt;Key&gt; result2 = getGDS().save().entity(testParent2).result();
-        TestParent testParent3 = new TestParent();
-        GDSResult&lt;Key&gt; result3 = getGDS().save().entity(testParent3).result();
-        TestParent testParent4 = new TestParent();
-        GDSResult&lt;Key&gt; result4 = getGDS().save().entity(testParent4).result();
-        TestParent testParent5 = new TestParent();
-        GDSResult&lt;Key&gt; result5 = getGDS().save().entity(testParent5).result();
+<pre><code>TestParent testParent1 = new TestParent();
+GDSResult&lt;Key&gt; result1 = getGDS().save().entity(testParent1).result();
+TestParent testParent2 = new TestParent();
+GDSResult&lt;Key&gt; result2 = getGDS().save().entity(testParent2).result();
+TestParent testParent3 = new TestParent();
+GDSResult&lt;Key&gt; result3 = getGDS().save().entity(testParent3).result();
+TestParent testParent4 = new TestParent();
+GDSResult&lt;Key&gt; result4 = getGDS().save().entity(testParent4).result();
+TestParent testParent5 = new TestParent();
+GDSResult&lt;Key&gt; result5 = getGDS().save().entity(testParent5).result();
 
-        GDSResult&lt;Boolean&gt; allResult = 
-            new GDSBatcher(result1, result2, result3, result4, result5)
-            .onAllComplete();
-        boolean success = allResult.now();
-
-        Assert.assertEquals(true, success);
-
-        Assert.assertNotNull(testParent1.id);
-        Assert.assertNotNull(testParent2.id);
-        Assert.assertNotNull(testParent3.id);
-        Assert.assertNotNull(testParent4.id);
-        Assert.assertNotNull(testParent5.id);
+GDSResult&lt;Boolean&gt; allResult = 
+    new GDSBatcher(result1, result2, result3, result4, result5)
+    .onAllComplete();
+boolean success = allResult.now();
 </code></pre>
 
 <h3>
