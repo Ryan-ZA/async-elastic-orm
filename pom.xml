@@ -23,9 +23,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/kevinsawicki/github-maven-example</url>
-		<connection>scm:git:git://github.com/kevinsawicki/github-maven-example.git</connection>
-		<developerConnection>scm:git:git@github.com:kevinsawicki/github-maven-example.git</developerConnection>
+		<url>https://github.com/Ryan-ZA/async-elastic-orm</url>
+		<connection>scm:git:git://github.com/Ryan-ZA/async-elastic-orm.git</connection>
+		<developerConnection>scm:git:git@github.com:Ryan-ZA/async-elastic-orm.git</developerConnection>
 	</scm>
 
 	<developers>
