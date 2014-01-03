@@ -4,7 +4,7 @@
 
 	<groupId>io.github.ryan-za</groupId>
 	<artifactId>async-elastic-orm</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.2.1</version>
 	<name>async-elastic-orm</name>
 	<description>An asynchronous POJO-to-ElasticSearch library for Java. </description>
 	<url>https://github.com/Ryan-ZA/async-elastic-orm</url>
