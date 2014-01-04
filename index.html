@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Async-elastic-orm : Asynchronous Java POJO to Elastic Search mapper" />
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Async-elastic-orm by Ryan-ZA</title>
+    <title>Async-elastic-orm</title>
   </head>
 
   <body>
 
-    <header>
-      <div class="container">
-        <h1>Async-elastic-orm</h1>
-        <h2>Asynchronous Java POJO to Elastic Search mapper</h2>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Ryan-ZA/async-elastic-orm">View on GitHub</a>
 
-        <section id="downloads">
-          <a href="https://github.com/Ryan-ZA/async-elastic-orm/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/Ryan-ZA/async-elastic-orm/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/Ryan-ZA/async-elastic-orm" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+          <h1 id="project_title">Async-elastic-orm</h1>
+          <h2 id="project_tagline">Asynchronous Java POJO to Elastic Search mapper</h2>
 
-    <div class="container">
-      <section id="main_content">
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Ryan-ZA/async-elastic-orm/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Ryan-ZA/async-elastic-orm/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h3>
 <a name="about" class="anchor" href="#about"><span class="octicon octicon-link"></span></a>About</h3>
 
@@ -41,7 +44,7 @@
 <pre><code>&lt;dependency&gt;
     &lt;groupId&gt;io.github.ryan-za&lt;/groupId&gt;
     &lt;artifactId&gt;async-elastic-orm&lt;/artifactId&gt;
-    &lt;version&gt;0.1&lt;/version&gt;
+    &lt;version&gt;0.2.2&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -51,30 +54,30 @@
 <h4>
 <a name="pojo-definition" class="anchor" href="#pojo-definition"><span class="octicon octicon-link"></span></a>POJO definition</h4>
 
-<pre><code>public class POJO {
-    @ID String id;
-    String name;
-}
-</code></pre>
+<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">POJO</span> <span class="o">{</span>
+    <span class="nd">@ID</span> <span class="n">String</span> <span class="n">id</span><span class="o">;</span>
+    <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
 
 <h4>
 <a name="saving-a-pojo" class="anchor" href="#saving-a-pojo"><span class="octicon octicon-link"></span></a>Saving a POJO</h4>
 
-<pre><code>POJO pojo = new POJO();
-new GDS().save(pojo).result().now();
-</code></pre>
+<div class="highlight highlight-java"><pre><span class="n">POJO</span> <span class="n">pojo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">POJO</span><span class="o">();</span>
+<span class="k">new</span> <span class="nf">GDS</span><span class="o">().</span><span class="na">save</span><span class="o">(</span><span class="n">pojo</span><span class="o">).</span><span class="na">result</span><span class="o">().</span><span class="na">now</span><span class="o">();</span>
+</pre></div>
 
 <h4>
 <a name="loading-a-pojo" class="anchor" href="#loading-a-pojo"><span class="octicon octicon-link"></span></a>Loading a POJO</h4>
 
-<pre><code>POJO pojo = new GDS().load().fetch(POJO.class, id).now();
-</code></pre>
+<div class="highlight highlight-java"><pre><span class="n">POJO</span> <span class="n">pojo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GDS</span><span class="o">().</span><span class="na">load</span><span class="o">().</span><span class="na">fetch</span><span class="o">(</span><span class="n">POJO</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">).</span><span class="na">now</span><span class="o">();</span>
+</pre></div>
 
 <h4>
 <a name="searching-or-loading-multiple" class="anchor" href="#searching-or-loading-multiple"><span class="octicon octicon-link"></span></a>Searching or loading multiple</h4>
 
-<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).asList();
-</code></pre>
+<div class="highlight highlight-java"><pre><span class="n">List</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GDS</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">POJO</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">asList</span><span class="o">();</span>
+</pre></div>
 
 <h3>
 <a name="asynchronous-usage" class="anchor" href="#asynchronous-usage"><span class="octicon octicon-link"></span></a>Asynchronous Usage</h3>
@@ -84,86 +87,119 @@ new GDS().save(pojo).result().now();
 <h4>
 <a name="saving-a-pojo-1" class="anchor" href="#saving-a-pojo-1"><span class="octicon octicon-link"></span></a>Saving a POJO</h4>
 
-<pre><code>POJO pojo = new POJO();
-new GDS().save(pojo).result().later(new GDSCallback&lt;Key&gt;() {
+<div class="highlight highlight-java"><pre><span class="n">POJO</span> <span class="n">pojo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">POJO</span><span class="o">();</span>
+<span class="k">new</span> <span class="nf">GDS</span><span class="o">().</span><span class="na">save</span><span class="o">(</span><span class="n">pojo</span><span class="o">).</span><span class="na">result</span><span class="o">().</span><span class="na">later</span><span class="o">(</span><span class="k">new</span> <span class="n">GDSCallback</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;()</span> <span class="o">{</span>
 
-    @Override
-    public void onSuccess(Key t, Throwable err) {
-        // Check err for errors, the key contains the id
-    }
-});
-</code></pre>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onSuccess</span><span class="o">(</span><span class="n">Key</span> <span class="n">t</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Check err for errors, the key contains the id</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
 
 <h4>
 <a name="loading-a-pojo-1" class="anchor" href="#loading-a-pojo-1"><span class="octicon octicon-link"></span></a>Loading a POJO</h4>
 
-<pre><code>new GDS().load().fetch(POJO.class, id).later(new GDSCallback&lt;POJO&gt;() {
+<div class="highlight highlight-java"><pre><span class="k">new</span> <span class="nf">GDS</span><span class="o">().</span><span class="na">load</span><span class="o">().</span><span class="na">fetch</span><span class="o">(</span><span class="n">POJO</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">).</span><span class="na">later</span><span class="o">(</span><span class="k">new</span> <span class="n">GDSCallback</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;()</span> <span class="o">{</span>
 
-    @Override
-    public void onSuccess(POJO pojo, Throwable err) {
-        // Check err for errors 
-    }
-});
-</code></pre>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onSuccess</span><span class="o">(</span><span class="n">POJO</span> <span class="n">pojo</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Check err for errors </span>
+    <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
 
 <h4>
 <a name="searching-or-loading-multiple-full-list-callback" class="anchor" href="#searching-or-loading-multiple-full-list-callback"><span class="octicon octicon-link"></span></a>Searching or loading multiple (full list callback)</h4>
 
-<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).result()
-    .laterAsList(new GDSResultListReceiver&lt;POJO&gt;() {
+<div class="highlight highlight-java"><pre><span class="n">List</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GDS</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">POJO</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">result</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">laterAsList</span><span class="o">(</span><span class="k">new</span> <span class="n">GDSResultListReceiver</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;()</span> <span class="o">{</span>
 
-    @Override
-    public void success(List&lt;POJO&gt; list, Throwable err) {
-        // Check err for errors
-    }
-});
-</code></pre>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">success</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Check err for errors</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
 
 <h4>
 <a name="searching-or-loading-multiple-feeder-callback" class="anchor" href="#searching-or-loading-multiple-feeder-callback"><span class="octicon octicon-link"></span></a>Searching or loading multiple (feeder callback)</h4>
 
-<pre><code>List&lt;POJO&gt; list = new GDS().query(POJO.class).result()
-    .later(new GDSResultReceiver&lt;POJO&gt;() {
+<div class="highlight highlight-java"><pre><span class="n">List</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GDS</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">POJO</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">result</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">later</span><span class="o">(</span><span class="k">new</span> <span class="n">GDSResultReceiver</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;()</span> <span class="o">{</span>
 
-    @Override
-    public boolean receiveNext(POJO pojo) {
-        return true; // return false to stop receiving more
-    }
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">receiveNext</span><span class="o">(</span><span class="n">POJO</span> <span class="n">pojo</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="c1">// return false to stop receiving more</span>
+    <span class="o">}</span>
 
-    @Override
-    public void onError(Throwable err) {
-        // Specific error callback as receiveNext() / finished() already
-        // block this being used as a lambda
-    }
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onError</span><span class="o">(</span><span class="n">Throwable</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Specific error callback as receiveNext()+finished()</span>
+        <span class="c1">// block this being used as a lambda</span>
+    <span class="o">}</span>
 
-    @Override
-    public void finished() {
-        // Called when all results have been pushed to receiveNext()
-    }
-});
-</code></pre>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">finished</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// Called when all results have been pushed to</span>
+        <span class="c1">// receiveNext()</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
 
 <h3>
 <a name="batching-async-operations" class="anchor" href="#batching-async-operations"><span class="octicon octicon-link"></span></a>Batching async operations</h3>
 
 <p>There is a <em>GDSBatcher</em> available for batching together multiple async operations so that you do not need a specific handler for each one. This is useful for only running operations when all saves or loads have completed.</p>
 
-<pre><code>TestParent testParent1 = new TestParent();
-GDSResult&lt;Key&gt; result1 = getGDS().save().entity(testParent1).result();
-TestParent testParent2 = new TestParent();
-GDSResult&lt;Key&gt; result2 = getGDS().save().entity(testParent2).result();
-TestParent testParent3 = new TestParent();
-GDSResult&lt;Key&gt; result3 = getGDS().save().entity(testParent3).result();
-TestParent testParent4 = new TestParent();
-GDSResult&lt;Key&gt; result4 = getGDS().save().entity(testParent4).result();
-TestParent testParent5 = new TestParent();
-GDSResult&lt;Key&gt; result5 = getGDS().save().entity(testParent5).result();
+<div class="highlight highlight-java"><pre><span class="n">TestParent</span> <span class="n">testParent1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestParent</span><span class="o">();</span>
+<span class="n">GDSResult</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span> <span class="n">result1</span> <span class="o">=</span> <span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">().</span><span class="na">entity</span><span class="o">(</span><span class="n">testParent1</span><span class="o">).</span><span class="na">result</span><span class="o">();</span>
+<span class="n">TestParent</span> <span class="n">testParent2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestParent</span><span class="o">();</span>
+<span class="n">GDSResult</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span> <span class="n">result2</span> <span class="o">=</span> <span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">().</span><span class="na">entity</span><span class="o">(</span><span class="n">testParent2</span><span class="o">).</span><span class="na">result</span><span class="o">();</span>
+<span class="n">TestParent</span> <span class="n">testParent3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestParent</span><span class="o">();</span>
+<span class="n">GDSResult</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span> <span class="n">result3</span> <span class="o">=</span> <span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">().</span><span class="na">entity</span><span class="o">(</span><span class="n">testParent3</span><span class="o">).</span><span class="na">result</span><span class="o">();</span>
+<span class="n">TestParent</span> <span class="n">testParent4</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestParent</span><span class="o">();</span>
+<span class="n">GDSResult</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span> <span class="n">result4</span> <span class="o">=</span> <span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">().</span><span class="na">entity</span><span class="o">(</span><span class="n">testParent4</span><span class="o">).</span><span class="na">result</span><span class="o">();</span>
+<span class="n">TestParent</span> <span class="n">testParent5</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestParent</span><span class="o">();</span>
+<span class="n">GDSResult</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span> <span class="n">result5</span> <span class="o">=</span> <span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">().</span><span class="na">entity</span><span class="o">(</span><span class="n">testParent5</span><span class="o">).</span><span class="na">result</span><span class="o">();</span>
 
-GDSResult&lt;Boolean&gt; allResult = 
-    new GDSBatcher(result1, result2, result3, result4, result5)
-    .onAllComplete();
-boolean success = allResult.now();
-</code></pre>
+<span class="n">GDSResult</span><span class="o">&lt;</span><span class="n">Boolean</span><span class="o">&gt;</span> <span class="n">allResult</span> <span class="o">=</span> 
+    <span class="k">new</span> <span class="nf">GDSBatcher</span><span class="o">(</span><span class="n">result1</span><span class="o">,</span> <span class="n">result2</span><span class="o">,</span> <span class="n">result3</span><span class="o">,</span> <span class="n">result4</span><span class="o">,</span> <span class="n">result5</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">onAllComplete</span><span class="o">();</span>
+<span class="kt">boolean</span> <span class="n">success</span> <span class="o">=</span> <span class="n">allResult</span><span class="o">.</span><span class="na">now</span><span class="o">();</span>
+</pre></div>
+
+<h3>
+<a name="object-versioning" class="anchor" href="#object-versioning"><span class="octicon octicon-link"></span></a>Object versioning</h3>
+
+<p>Elasticsearch provides for object versioning which can be used in places where consistency is important. <strong>async-elastic-orm</strong> provides for easy access to this functionality by declaring a version parameter in your pojo. When doing an update of a pojo with a version field, the operation will only succeed if the version matches with the pojo being updated to ensure no data is overwritten. </p>
+
+<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestVersionedObject</span> <span class="o">{</span>
+    <span class="nd">@ID</span>
+    <span class="n">String</span> <span class="n">id</span><span class="o">;</span>
+    <span class="nd">@Version</span>
+    <span class="kt">long</span> <span class="n">ver</span><span class="o">;</span>
+
+    <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+<div class="highlight highlight-java"><pre><span class="n">TestVersionedObject</span> <span class="n">testVersionedObject</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestVersionedObject</span><span class="o">();</span>
+<span class="n">testVersionedObject</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="s">"one"</span><span class="o">;</span>
+
+<span class="c1">// This will succeed</span>
+<span class="n">Key</span> <span class="n">key1</span> <span class="o">=</span> <span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">(</span><span class="n">testVersionedObject</span><span class="o">).</span><span class="na">now</span><span class="o">();</span>
+
+<span class="n">testVersionedObject</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="s">"two"</span><span class="o">;</span>
+<span class="c1">// This will also succeed as the pojo's version </span>
+<span class="c1">// has been updated on save</span>
+<span class="n">Key</span> <span class="n">key2</span> <span class="o">=</span> <span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">(</span><span class="n">testVersionedObject</span><span class="o">).</span><span class="na">now</span><span class="o">();</span>
+
+<span class="c1">// simulate an old copy of the object       </span>
+<span class="n">testVersionedObject</span><span class="o">.</span><span class="na">ver</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+<span class="c1">// This will fail as the version is older</span>
+<span class="n">getGDS</span><span class="o">().</span><span class="na">save</span><span class="o">(</span><span class="n">testVersionedObject</span><span class="o">).</span><span class="na">now</span><span class="o">();</span>
+</pre></div>
 
 <h3>
 <a name="more-examples" class="anchor" href="#more-examples"><span class="octicon octicon-link"></span></a>More examples</h3>
@@ -177,6 +213,15 @@ boolean success = allResult.now();
       </section>
     </div>
 
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Async-elastic-orm maintained by <a href="https://github.com/Ryan-ZA">Ryan-ZA</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
     
+
   </body>
 </html>
