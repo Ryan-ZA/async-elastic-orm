@@ -751,9 +751,6 @@ public class GDSLoader {
 	 * @throws IllegalAccessException
 	 */
 	private void setField(Field field, Object pojo, Object fieldPOJO) throws IllegalArgumentException, IllegalAccessException {
-		System.out.println("field: " + field);
-		System.out.println("pojo: " + pojo);
-		System.out.println("fieldPOJO: " + fieldPOJO);
 		Class<?> type = field.getType();
 		if (type.isPrimitive()) {
 			if (type == int.class) {
