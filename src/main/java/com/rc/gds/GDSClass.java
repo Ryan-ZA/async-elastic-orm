@@ -26,7 +26,7 @@ public class GDSClass {
 	 */
 	public static final String GDS_MAP_FIELD = "__GDS_MAP_FIELD";
 
-	private static final Map<Class<?>, Boolean> hasIdFieldMap = new ConcurrentHashMap<Class<?>, Boolean>();
+	static final Map<Class<?>, Boolean> hasIdFieldMap = new ConcurrentHashMap<Class<?>, Boolean>();
 
 	public static List<String> getKinds(Class<?> clazz) {
 		ArrayList<String> list = new ArrayList<String>();

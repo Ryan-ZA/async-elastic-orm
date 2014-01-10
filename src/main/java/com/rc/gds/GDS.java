@@ -126,6 +126,11 @@ public class GDS {
 		return client;
 	}
 	
+	public static synchronized void clearReflectionCache() {
+		GDSField.reflectionCache.clear();
+		GDSClass.hasIdFieldMap.clear();
+	}
+
 	public static synchronized void shutdownAllNodes() {
 		for (Client client : clientMap.values()) {
 			client.close();
