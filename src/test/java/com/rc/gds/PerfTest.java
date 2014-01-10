@@ -22,7 +22,7 @@ import com.rc.gds.interfaces.GDSResult;
 public class PerfTest {
 	
 	private static GDS getGDS() {
-		return new GDS("gdstest");
+		return new GDS(false, "gdstest");
 	}
 	
 	@Before

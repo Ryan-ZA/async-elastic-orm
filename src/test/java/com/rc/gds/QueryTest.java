@@ -13,7 +13,7 @@ import org.junit.Test;
 public class QueryTest {
 
 	private static GDS getGDS() {
-		return new GDS("gdstest");
+		return new GDS(false, "gdstest");
 	}
 	
 	@BeforeClass

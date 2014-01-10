@@ -21,14 +21,16 @@ public class GDS {
 	static Map<String, Client> clientMap = new HashMap<>();
 	static List<Node> nodeList = new ArrayList<>();
 
-	static synchronized Client getClient(String dbname) {
+	static synchronized Client getClient(boolean isclient, String dbname) {
 		if (clientMap.containsKey(dbname)) {
 			return clientMap.get(dbname);
 		} else {
-			Node node = nodeBuilder().clusterName(dbname).node();
+			Client client;
+			Node node = nodeBuilder().clusterName(dbname).local(false).client(isclient).node();
 			node.start();
 			nodeList.add(node);
-			Client client = node.client();
+			client = node.client();
+			System.out.println("Client is " + client.getClass());
 			clientMap.put(dbname, client);
 			return client;
 		}
@@ -37,12 +39,12 @@ public class GDS {
 	Client client;
 	String cluster;
 
-	public GDS() {
-		client = getClient("gloopsh");
+	public GDS(boolean isclient) {
+		client = getClient(isclient, "gloopsh");
 	}
 	
-	public GDS(String cluster) {
-		client = getClient(cluster);
+	public GDS(boolean isclient, String cluster) {
+		client = getClient(isclient, cluster);
 	}
 	
 	public String indexFor(String kind) {
