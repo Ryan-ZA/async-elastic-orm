@@ -751,20 +751,23 @@ public class GDSLoader {
 	 * @throws IllegalAccessException
 	 */
 	private void setField(Field field, Object pojo, Object fieldPOJO) throws IllegalArgumentException, IllegalAccessException {
+		System.out.println("field: " + field);
+		System.out.println("pojo: " + pojo);
+		System.out.println("fieldPOJO: " + fieldPOJO);
 		Class<?> type = field.getType();
 		if (type.isPrimitive()) {
 			if (type == int.class) {
 				Integer l = (Integer) fieldPOJO;
 				field.setInt(pojo, l);
 			} else if (type == short.class) {
-				Short l = (Short) fieldPOJO;
-				field.setShort(pojo, l);
+				Integer l = (Integer) fieldPOJO;
+				field.setShort(pojo, l.shortValue());
 			} else if (type == byte.class) {
-				Byte l = (Byte) fieldPOJO;
-				field.setByte(pojo, l);
+				String l = (String) fieldPOJO;
+				field.setByte(pojo, Byte.valueOf(l));
 			} else if (type == float.class) {
-				Float d = (Float) fieldPOJO;
-				field.setFloat(pojo, d);
+				Double d = (Double) fieldPOJO;
+				field.setFloat(pojo, d.floatValue());
 			} else if (type == char.class) {
 				Character s = (Character) fieldPOJO;
 				field.setChar(pojo, s);
@@ -773,7 +776,12 @@ public class GDSLoader {
 			}
 		} else {
 			if (Number.class.isAssignableFrom(type)) {
-				Number number = (Number) fieldPOJO;
+				Number number;
+				if (fieldPOJO instanceof String) {
+					number = Double.valueOf((String) fieldPOJO);
+				} else {
+					number = (Number) fieldPOJO;
+				}
 				if (type == Integer.class) {
 					field.set(pojo, number.intValue());
 				} else if (type == Long.class) {
