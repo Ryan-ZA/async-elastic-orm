@@ -60,7 +60,7 @@ public class GDSLoader {
 						
 						@Override
 						public void onResponse(GetResponse response) {
-							Entity entity = new Entity(kind, response.getSourceAsMap());
+							Entity entity = new Entity(kind, response.getId(), response.getSourceAsMap());
 
 							final List<GDSLink> linksToFetch = new ArrayList<GDSLink>();
 							try {
@@ -119,7 +119,7 @@ public class GDSLoader {
 					
 					@Override
 					public void onResponse(GetResponse getResponse) {
-						Entity entity = new Entity(key.kind, getResponse.getSourceAsMap());
+						Entity entity = new Entity(key.kind, getResponse.getId(), getResponse.getSourceAsMap());
 						final List<GDSLink> linksToFetch = new ArrayList<GDSLink>();
 						try {
 							entityToPOJO(entity, entity.getKey().getId(), linksToFetch, new GDSCallback<Object>() {
@@ -257,7 +257,7 @@ public class GDSLoader {
 			public void onResponse(MultiGetResponse response) {
 				Map<Key, Entity> resultMap = Collections.synchronizedMap(new HashMap<Key, Entity>());
 				for (MultiGetItemResponse itemResponse : response.getResponses()) {
-					Entity entity = new Entity(itemResponse.getType(), itemResponse.getResponse().getSourceAsMap());
+					Entity entity = new Entity(itemResponse.getType(), itemResponse.getResponse().getId(), itemResponse.getResponse().getSourceAsMap());
 					resultMap.put(new Key(itemResponse.getType(), itemResponse.getId()), entity);
 				}
 				callback.onSuccess(resultMap, null);

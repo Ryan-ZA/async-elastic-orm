@@ -39,7 +39,7 @@ public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 		}
 
 		SearchHit hit = iterator.next();
-		Entity entity = new Entity(null, hit.getSource());
+		Entity entity = new Entity(hit.getType(), hit.getId(), hit.getSource());
 		
 		final List<GDSLink> links = new ArrayList<GDSLink>();
 		try {

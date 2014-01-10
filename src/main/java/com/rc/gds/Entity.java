@@ -25,7 +25,8 @@ class Entity implements PropertyContainer, Serializable {
 		this.classKind = classKind;
 	}
 
-	public Entity(String classKind, Map<String, Object> dbObject) {
+	public Entity(String classKind, String id, Map<String, Object> dbObject) {
+		this.id = id;
 		this.classKind = classKind;
 		this.dbObject = dbObject;
 	}
