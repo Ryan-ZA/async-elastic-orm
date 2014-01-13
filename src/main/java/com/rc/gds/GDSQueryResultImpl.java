@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -16,12 +18,16 @@ import com.rc.gds.interfaces.GDSResultReceiver;
 
 public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 	
+	private static final int MAX_DEPTH = 100;
+
 	GDS gds;
 	Iterator<SearchHit> iterator;
 	Class<T> clazz;
 	GDSLoader loader;
 	SearchResponse searchResponse;
 	private boolean finished = false;
+	int depth = 0;
+	ExecutorService deepStackExecutor;
 	
 	protected GDSQueryResultImpl(GDS gds, Class<T> clazz, Iterator<SearchHit> iterator, SearchResponse searchResponse) {
 		this.gds = gds;
@@ -56,12 +62,29 @@ public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 							@Override
 							public void onSuccess(List<GDSLink> t, Throwable err) {
 								if (err != null) {
+									shutdownDeepStackExecutor();
 									resultReceiver.onError(err);
 								} else {
-									if (resultReceiver.receiveNext((T) pojo))
-										later(resultReceiver);
-									else
+									if (resultReceiver.receiveNext((T) pojo)) {
+										depth++;
+										if (depth > MAX_DEPTH) {
+											// Temporary work around for depth getting too great on the stack
+											if (deepStackExecutor == null)
+												deepStackExecutor = Executors.newSingleThreadExecutor();
+											deepStackExecutor.submit(new Runnable() {
+
+												@Override
+												public void run() {
+													later(resultReceiver);
+												}
+											});
+										} else {
+											later(resultReceiver);
+										}
+									} else {
+										shutdownDeepStackExecutor();
 										resultReceiver.finished();
+									}
 								}
 							}
 						});
@@ -151,4 +174,9 @@ public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 		});
 	}
 	
+	private void shutdownDeepStackExecutor() {
+		if (deepStackExecutor != null)
+			deepStackExecutor.shutdown();
+	}
+
 }

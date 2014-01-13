@@ -146,7 +146,7 @@ public class PerfTest {
 	@Test
 	public void testLoadGDS() {
 		// 1000 as query max results returned is 1000
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			TestParent testParent = new TestParent();
 			testParent.name = "parent1";
 			getGDS().save().entity(testParent).now();
@@ -155,9 +155,9 @@ public class PerfTest {
 		refreshIndex();
 		
 		long time = System.currentTimeMillis();
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 5; i++) {
 			List<TestParent> list = getGDS().query(TestParent.class).asList();
-			Assert.assertEquals(1000, list.size());
+			Assert.assertEquals(10000, list.size());
 		}
 		System.out.println("testLoadGDS ellapsed: " + (System.currentTimeMillis() - time));
 		

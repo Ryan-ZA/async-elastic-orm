@@ -132,7 +132,7 @@ public class GDSQuery<T> {
 			requestBuilder.setFilter(filter);
 		
 		requestBuilder.setFrom(0);
-		requestBuilder.setSize(1000);
+		requestBuilder.setSize(10000);
 
 		SearchResponse searchResponse = requestBuilder.execute().actionGet();
 		
