@@ -68,6 +68,7 @@ public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 									if (resultReceiver.receiveNext((T) pojo)) {
 										depth++;
 										if (depth > MAX_DEPTH) {
+											depth = 0;
 											// Temporary work around for depth getting too great on the stack
 											if (deepStackExecutor == null)
 												deepStackExecutor = Executors.newSingleThreadExecutor();
