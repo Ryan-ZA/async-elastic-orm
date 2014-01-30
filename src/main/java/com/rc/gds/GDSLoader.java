@@ -80,20 +80,17 @@ public class GDSLoader {
 												}
 											});
 										} catch (Throwable e) {
-											e.printStackTrace();
 											callback.onSuccess(null, e);
 										}
 									}
 								});
 							} catch (Throwable e) {
-								e.printStackTrace();
 								callback.onSuccess(null, e);
 							}
 						}
 						
 						@Override
 						public void onFailure(Throwable e) {
-							e.printStackTrace();
 							callback.onSuccess(null, e);
 						}
 					});
@@ -138,20 +135,17 @@ public class GDSLoader {
 											}
 										});
 									} catch (Throwable e) {
-										e.printStackTrace();
 										callback.onSuccess(null, e);
 									}
 								}
 							});
 						} catch (Throwable e) {
-							e.printStackTrace();
 							callback.onSuccess(null, e);
 						}
 					}
 					
 					@Override
 					public void onFailure(Throwable e) {
-						e.printStackTrace();
 						callback.onSuccess(null, e);
 					}
 				});
@@ -227,7 +221,6 @@ public class GDSLoader {
 										});
 									}
 								} catch (Throwable e) {
-									e.printStackTrace();
 									callback.onSuccess(null, e);
 								}
 							}
@@ -236,7 +229,6 @@ public class GDSLoader {
 					}
 					
 				} catch (Throwable e) {
-					e.printStackTrace();
 					callback.onSuccess(null, e);
 				}
 			}
@@ -265,7 +257,6 @@ public class GDSLoader {
 			
 			@Override
 			public void onFailure(Throwable e) {
-				e.printStackTrace();
 				callback.onSuccess(null, e);
 			}
 		});
@@ -328,7 +319,6 @@ public class GDSLoader {
 					}
 					callback.onSuccess(linksToFetch, err);
 				} catch (Throwable e) {
-					err.printStackTrace();
 					callback.onSuccess(linksToFetch, e);
 				}
 			}
@@ -571,7 +561,6 @@ public class GDSLoader {
 							}
 						});
 					} catch (Throwable e) {
-						e.printStackTrace();
 						callback.onSuccess(null, e);
 					}
 				}

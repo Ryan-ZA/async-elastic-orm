@@ -24,7 +24,6 @@ public class GDSDeleter {
 			String id = GDSField.getID(o);
 			return delete(o.getClass(), id);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
 			throw new RuntimeException("Reflection error", e);
 		}
 	}
@@ -45,7 +44,6 @@ public class GDSDeleter {
 			
 			@Override
 			public void onFailure(Throwable e) {
-				e.printStackTrace();
 				callback.onSuccess(false, e);
 			}
 		});
@@ -81,14 +79,12 @@ public class GDSDeleter {
 						
 						@Override
 						public void onFailure(Throwable e) {
-							e.printStackTrace();
 							callback.onSuccess(false, e);
 						}
 					});
 			
 			return callback;
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
 			throw new RuntimeException("Reflection error", e);
 		}
 	}
@@ -109,7 +105,6 @@ public class GDSDeleter {
 					
 					@Override
 					public void onFailure(Throwable e) {
-						e.printStackTrace();
 						callback.onSuccess(false, e);
 					}
 				});

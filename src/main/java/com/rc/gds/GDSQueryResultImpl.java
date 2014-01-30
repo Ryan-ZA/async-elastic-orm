@@ -90,13 +90,11 @@ public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 							}
 						});
 					} catch (Throwable e) {
-						e.printStackTrace();
 						resultReceiver.onError(e);
 					}
 				}
 			});
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InterruptedException | ExecutionException e) {
-			e.printStackTrace();
 			throw new RuntimeException("Error completing query on " + clazz, e);
 		}
 	}
@@ -145,7 +143,6 @@ public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 					throw new RuntimeException("Error completing query on " + clazz, errList.get(0));
 				return result;
 			} catch (InterruptedException e) {
-				e.printStackTrace();
 				throw new RuntimeException("Error completing query on " + clazz, e);
 			}
 		}

@@ -44,7 +44,6 @@ public class GDSAsyncImpl<T> implements GDSCallback<T>, GDSResult<T> {
 				GDSAsyncImpl.this.wait();
 				return result;
 			} catch (InterruptedException e) {
-				e.printStackTrace();
 				return null;
 			}
 		}

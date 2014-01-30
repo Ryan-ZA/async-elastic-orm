@@ -69,7 +69,6 @@ public class GDSClass {
 				AccessibleObject.setAccessible(classfields, true);
 			} catch (Exception ex) {
 				//System.out.println("Error trying to setAccessible for class: " + clazz + " " + ex.toString());
-				ex.printStackTrace();
 			}
 
 			for (Field field : classfields) {
@@ -91,7 +90,6 @@ public class GDSClass {
 			AccessibleObject.setAccessible(cons, true);
 		} catch (Exception ex) {
 			//System.out.println("Error trying to makeConstructorsPublic for class: " + clazz + " " + ex.toString());
-			ex.printStackTrace();
 		}
 	}
 

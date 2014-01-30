@@ -161,7 +161,6 @@ public class GDSField {
 				AccessibleObject.setAccessible(classfields, true);
 			} catch (Exception ex) {
 				//System.out.println("Error trying to setAccessible for object: " + obj + " " + ex.toString());
-				ex.printStackTrace();
 			}
 
 			for (Field field : classfields) {
