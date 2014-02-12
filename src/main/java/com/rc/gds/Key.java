@@ -19,6 +19,11 @@ public class Key implements Serializable {
 		kind = (String) map.get("kind");
 	}
 	
+	public Key(Class<?> clazz, String id) {
+		this.id = id;
+		kind = GDSClass.getKind(clazz);
+	}
+
 	public Key(String kind, String id) {
 		this.id = id;
 		this.kind = kind;
@@ -55,6 +60,18 @@ public class Key implements Serializable {
 		return id;
 	}
 	
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	public String getKind() {
+		return kind;
+	}
+	
+	public void setKind(String kind) {
+		this.kind = kind;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

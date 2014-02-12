@@ -11,7 +11,9 @@ import java.util.concurrent.Executors;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 
+import com.rc.gds.interfaces.GDS;
 import com.rc.gds.interfaces.GDSCallback;
+import com.rc.gds.interfaces.GDSLoader;
 import com.rc.gds.interfaces.GDSMultiResult;
 import com.rc.gds.interfaces.GDSResultListReceiver;
 import com.rc.gds.interfaces.GDSResultReceiver;
@@ -34,7 +36,7 @@ public class GDSQueryResultImpl<T> implements GDSMultiResult<T> {
 		this.iterator = iterator;
 		this.clazz = clazz;
 		this.searchResponse = searchResponse;
-		loader = new GDSLoader(gds);
+		loader = new GDSLoaderImpl(gds);
 	}
 	
 	@Override

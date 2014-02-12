@@ -19,35 +19,31 @@ import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
 
+import com.rc.gds.interfaces.GDS;
 import com.rc.gds.interfaces.GDSCallback;
+import com.rc.gds.interfaces.GDSLoader;
 import com.rc.gds.interfaces.GDSResult;
 
-public class GDSLoader {
+public class GDSLoaderImpl implements GDSLoader {
 
 	GDS gds;
 	private Map<Key, Object> localCache = Collections.synchronizedMap(new HashMap<Key, Object>());
 	private List<Key> alreadyFetching = new ArrayList<>();
 
-	protected GDSLoader(GDS gds) {
+	protected GDSLoaderImpl(GDS gds) {
 		this.gds = gds;
 	}
 
-	/**
-	 * This will fetch a pojo of type clazz with specific id. This method is prefered over fetch(Key)
-	 * 
-	 * @param clazz
-	 *            Class of the object to fetch. Should be the class itself if possible, but superclass or subclass of the object will work
-	 *            too.
-	 * @param id
-	 *            Long id returned from a previous saved pojo
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSLoader#fetch(java.lang.Class, java.lang.String)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> GDSResult<T> fetch(final Class<T> clazz, final String id) {
 		try {
 			final GDSAsyncImpl<T> callback = new GDSAsyncImpl<>();
 
-			final String kind = GDSClass.fixName(GDSClass.getBaseClass(clazz).getName());
+			final String kind = GDSClass.getKind(clazz);
 			final Key key = new Key(kind, id);
 
 			if (localCache.containsKey(key)) {
@@ -55,7 +51,7 @@ public class GDSLoader {
 				return callback;
 			}
 
-			gds.client.prepareGet(gds.indexFor(key.kind), key.kind, key.id)
+			gds.getClient().prepareGet(gds.indexFor(key.kind), key.kind, key.id)
 					.execute(new ActionListener<GetResponse>() {
 						
 						@Override
@@ -103,15 +99,13 @@ public class GDSLoader {
 		}
 	}
 
-	/**
-	 * Will fetch the pojo matching the key.
-	 * 
-	 * @param key
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSLoader#fetch(com.rc.gds.Key, com.rc.gds.interfaces.GDSCallback)
 	 */
+	@Override
 	public void fetch(final Key key, final GDSCallback<Object> callback) {
 		
-		gds.client.prepareGet(gds.indexFor(key.kind), key.kind, key.id)
+		gds.getClient().prepareGet(gds.indexFor(key.kind), key.kind, key.id)
 				.execute(new ActionListener<GetResponse>() {
 					
 					@Override
@@ -151,18 +145,11 @@ public class GDSLoader {
 				});
 	}
 
-	/**
-	 * Will fetch all pojos for keys.
-	 * 
-	 * @param keys
-	 * @return
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws ClassNotFoundException
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSLoader#fetchBatch(java.lang.Iterable, com.rc.gds.interfaces.GDSCallback)
 	 */
-	public void fetch(final Iterable<Key> keys, final GDSCallback<Map<Key, Object>> callback) throws InterruptedException, ExecutionException, ClassNotFoundException,
+	@Override
+	public void fetchBatch(final Iterable<Key> keys, final GDSCallback<Map<Key, Object>> callback) throws InterruptedException, ExecutionException, ClassNotFoundException,
 			InstantiationException, IllegalAccessException {
 		final Map<Key, Object> fetched = Collections.synchronizedMap(new HashMap<Key, Object>());
 		final Set<Key> stillToFetch = Collections.synchronizedSet(new HashSet<Key>());
@@ -237,7 +224,7 @@ public class GDSLoader {
 	}
 
 	private void bulkFetchList(Set<Key> stillToFetch, final GDSCallback<Map<Key, Entity>> callback) {
-		MultiGetRequestBuilder requestBuilder = gds.client.prepareMultiGet();
+		MultiGetRequestBuilder requestBuilder = gds.getClient().prepareMultiGet();
 
 		for (Key key : stillToFetch) {
 			requestBuilder.add(gds.indexFor(key.kind), key.kind, key.id);
@@ -262,6 +249,10 @@ public class GDSLoader {
 		});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSLoader#fetchLinks(java.util.List, com.rc.gds.interfaces.GDSCallback)
+	 */
+	@Override
 	public void fetchLinks(final List<GDSLink> linksToFetch, final GDSCallback<List<GDSLink>> callback) throws IllegalArgumentException, IllegalAccessException,
 			ClassNotFoundException,
 			InstantiationException, InterruptedException, ExecutionException {
@@ -279,7 +270,7 @@ public class GDSLoader {
 			return;
 		}
 
-		fetch(stillToFetch, new GDSCallback<Map<Key, Object>>() {
+		fetchBatch(stillToFetch, new GDSCallback<Map<Key, Object>>() {
 			
 			@Override
 			public void onSuccess(Map<Key, Object> fetched, Throwable err) {
@@ -325,19 +316,10 @@ public class GDSLoader {
 		});
 	}
 
-	/**
-	 * Real logic for loading pojos from the datastore. Can be given a Entity or EmbeddedEntity, and if the entity is in the correct format
-	 * you will get back a POJO.
-	 * 
-	 * @param entity
-	 * @param id
-	 * @return
-	 * @throws ClassNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSLoader#entityToPOJO(com.rc.gds.PropertyContainer, java.lang.String, java.util.List, com.rc.gds.interfaces.GDSCallback)
 	 */
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void entityToPOJO(PropertyContainer entity, String id, final List<GDSLink> linksToFetch, final GDSCallback<Object> callback) throws ClassNotFoundException,
 			InstantiationException,

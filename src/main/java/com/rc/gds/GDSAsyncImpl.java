@@ -24,6 +24,8 @@ public class GDSAsyncImpl<T> implements GDSCallback<T>, GDSResult<T> {
 	
 	@Override
 	public T now() {
+		testErr();
+
 		if (result != null)
 			return result;
 		
@@ -38,13 +40,15 @@ public class GDSAsyncImpl<T> implements GDSCallback<T>, GDSResult<T> {
 		});
 		
 		synchronized (GDSAsyncImpl.this) {
+			testErr();
 			try {
 				if (result != null)
 					return result;
 				GDSAsyncImpl.this.wait();
+				testErr();
 				return result;
 			} catch (InterruptedException e) {
-				return null;
+				throw new RuntimeException(e);
 			}
 		}
 	}
@@ -59,4 +63,12 @@ public class GDSAsyncImpl<T> implements GDSCallback<T>, GDSResult<T> {
 		}
 	}
 	
+	void testErr() {
+		if (resultErr != null)
+			if (resultErr instanceof RuntimeException)
+				throw (RuntimeException) resultErr;
+			else
+				throw new RuntimeException(resultErr);
+	}
+
 }

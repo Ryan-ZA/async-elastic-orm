@@ -3,35 +3,36 @@ package com.rc.gds;
 import java.util.Arrays;
 import java.util.List;
 
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.facet.FacetBuilders;
+import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.rc.gds.interfaces.GDS;
+
 public class QueryTest {
 
 	private static GDS getGDS() {
-		return new GDS(false, "gdstest");
+		return new GDSImpl(false, "gdstest");
 	}
 	
 	@BeforeClass
 	public static void testSetup() {
-		try {
-			getGDS().client.admin().indices().prepareDelete().execute().actionGet();
-		} catch (Exception ex) {
-		}
-		getGDS();
+		getGDS().getClient().admin().indices().prepareDelete("*").execute().actionGet();
 	}
 	
 	@After
 	public void testCleanup() {
-		getGDS().client.admin().indices().prepareDelete().execute().actionGet();
+		getGDS().getClient().admin().indices().prepareDelete("*").execute().actionGet();
 	}
 	
 	private void refreshIndex() {
-		getGDS().client.admin().indices().prepareRefresh().execute().actionGet();
+		getGDS().getClient().admin().indices().prepareRefresh().execute().actionGet();
 	}
 
 	@Test
@@ -279,27 +280,27 @@ public class QueryTest {
 				.filter("testChild", testParentPoly.testChild)
 				.asList().size());
 		Assert.assertEquals(1, getGDS().query(TestParent.class)
-				.filter(QueryBuilders.fieldQuery("name", "bla"))
+				.filter(QueryBuilders.matchPhraseQuery("name", "bla"))
 				.asList().size());
 		Assert.assertEquals(1, getGDS().query(TestParent.class)
-				.filter(QueryBuilders.fieldQuery("name", "blu"))
+				.filter(QueryBuilders.matchPhraseQuery("name", "blu"))
 				.asList().size());
 		Assert.assertEquals(0, getGDS().query(TestParent.class)
-				.filter(QueryBuilders.fieldQuery("name", "na"))
+				.filter(QueryBuilders.matchPhraseQuery("name", "na"))
 				.asList().size());
 		Assert.assertEquals(0, getGDS().query(TestParent.class)
 				.filter("testChild", testParentPoly.testChild)
-				.filter(QueryBuilders.fieldQuery("name", "bla"))
+				.filter(QueryBuilders.matchPhraseQuery("name", "bla"))
 				.asList().size());
 		Assert.assertEquals(1, getGDS().query(TestParent.class)
 				.filter("testChild", testParentPoly.testChild)
-				.filter(QueryBuilders.fieldQuery("name", "blu"))
+				.filter(QueryBuilders.matchPhraseQuery("name", "blu"))
 				.asList().size());
 	}
 	
 	@Test
 	public void testNumberFilter() {
-		for (int i = 0; i < 10; i++) {
+		for (int i = -5; i < 10; i++) {
 			TestParentPoly testParentPoly = new TestParentPoly();
 			testParentPoly.name = "test" + i;
 			testParentPoly.param1 = i;
@@ -308,12 +309,42 @@ public class QueryTest {
 		
 		refreshIndex();
 		
-		Assert.assertEquals(10, getGDS().query(TestParentPoly.class).asList().size());
+		Assert.assertEquals(15, getGDS().query(TestParentPoly.class).asList().size());
 		Assert.assertEquals(1, getGDS().query(TestParent.class)
-				.filter(QueryBuilders.fieldQuery("param1", 6))
+				.filter(QueryBuilders.matchPhraseQuery("param1", 2))
+				.asList().size());
+		Assert.assertEquals(1, getGDS().query(TestParent.class)
+				.filter(QueryBuilders.matchPhraseQuery("param1", -2))
 				.asList().size());
 		Assert.assertEquals(3, getGDS().query(TestParent.class)
 				.filter(QueryBuilders.rangeQuery("param1").gt(3).lte(6))
+				.asList().size());
+		Assert.assertEquals(3, getGDS().query(TestParent.class)
+				.filter(QueryBuilders.rangeQuery("param1").gt(-5).lte(-2))
+				.asList().size());
+		
+	}
+	
+	@Test
+	public void testCommaFilter() {
+		for (int i = -5; i < 10; i++) {
+			TestParentPoly testParentPoly = new TestParentPoly();
+			testParentPoly.name = "test" + i + ",twest" + -i;
+			testParentPoly.param1 = i;
+			getGDS().save().entity(testParentPoly).now();
+		}
+		
+		refreshIndex();
+		
+		Assert.assertEquals(15, getGDS().query(TestParentPoly.class).asList().size());
+		Assert.assertEquals(1, getGDS().query(TestParent.class)
+				.filter(QueryBuilders.matchPhraseQuery("name", "test-2,twest2"))
+				.asList().size());
+		Assert.assertEquals(0, getGDS().query(TestParent.class)
+				.filter(QueryBuilders.matchPhraseQuery("name", "est2,twest-2"))
+				.asList().size());
+		Assert.assertEquals(1, getGDS().query(TestParent.class)
+				.filter(QueryBuilders.matchPhraseQuery("name", "test2,twest-2"))
 				.asList().size());
 		
 	}
@@ -382,6 +413,53 @@ public class QueryTest {
 				.filter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.scriptFilter(script)))
 				.asList().size());
 		
+	}
+	
+	@Test
+	public void testFacet() {
+		for (int i = 0; i < 50; i++) {
+			TestParent testParent = new TestParent();
+			testParent.name = "bla" + i / 10;
+			getGDS().save().entity(testParent).now();
+		}
+		
+		refreshIndex();
+
+		SearchResponse sr = getGDS().getClient().prepareSearch(getGDS().indexFor(GDSClass.getKind(TestParent.class)))
+				.addFacet(FacetBuilders.termsFacet("test1").field("name"))
+				.setQuery(QueryBuilders.matchAllQuery())
+				.setSize(0)
+				.get();
+		
+		TermsFacet termsFacet = sr.getFacets().facet(TermsFacet.class, "test1");
+		Assert.assertEquals(5, termsFacet.getEntries().size());
+		
+		Assert.assertEquals(0, sr.getHits().getHits().length);
+	}
+	
+	@Test
+	public void testFacetChildren() {
+		TestChild testChild = new TestChild();
+
+		for (int i = 0; i < 50; i++) {
+			TestParent testParent = new TestParent();
+			testParent.testChild = testChild;
+			getGDS().save().entity(testParent).now();
+		}
+		
+		refreshIndex();
+
+		SearchResponse sr = getGDS().getClient().prepareSearch(getGDS().indexFor(GDSClass.getKind(TestParent.class)))
+				.addFacet(FacetBuilders.termsFacet("test1").scriptField("_source.testChild.id"))
+				.setQuery(QueryBuilders.matchAllQuery())
+				.setSize(0)
+				.get();
+		
+		TermsFacet termsFacet = sr.getFacets().facet(TermsFacet.class, "test1");
+
+		Assert.assertEquals(1, termsFacet.getEntries().size());
+		
+		Assert.assertEquals(0, sr.getHits().getHits().length);
 	}
 
 }

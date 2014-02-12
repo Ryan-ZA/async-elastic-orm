@@ -1,5 +1,6 @@
 package com.rc.gds;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,10 +17,12 @@ import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.action.update.UpdateResponse;
 
 import com.rc.gds.annotation.AlwaysPersist;
+import com.rc.gds.interfaces.GDS;
 import com.rc.gds.interfaces.GDSCallback;
 import com.rc.gds.interfaces.GDSResult;
+import com.rc.gds.interfaces.GDSSaver;
 
-public class GDSSaver {
+public class GDSSaverImpl implements GDSSaver {
 
 	GDS gds;
 	Object pojo;
@@ -29,45 +32,49 @@ public class GDSSaver {
 	List<Object> alreadyStoredObjects;
 	boolean isUpdate = true;
 
-	protected GDSSaver(GDS gds) {
+	protected GDSSaverImpl(GDS gds) {
 		this.gds = gds;
 		alreadyStoredObjects = Collections.synchronizedList(new ArrayList<Object>());
 	}
 
-	protected GDSSaver(GDSSaver saver) {
+	protected GDSSaverImpl(GDSSaverImpl saver) {
 		gds = saver.gds;
 		recursiveUpdate = saver.recursiveUpdate;
 		alreadyStoredObjects = saver.alreadyStoredObjects;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSSaver#entity(java.lang.Object)
+	 */
+	@Override
 	public GDSSaver entity(Object pojo) {
 		this.pojo = pojo;
 		return this;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSSaver#withSpecialID(java.lang.String)
+	 */
+	@Override
 	public GDSSaver withSpecialID(String specialID) {
 		this.specialID = specialID;
 		return this;
 	}
 
-	/**
-	 * This function will force the re-saving of any pojo that already have an ID set. Normal behaviour is for all new pojos (pojos with a
-	 * blank ID) to be saved recursively, and all pojos that have an ID to be skipped as they are already saved. Not really recommended to
-	 * use this function - you should rather save objects directly when you update them!
-	 * 
-	 * Be very careful of cyclical links in your object graph - it will cause a stack overflow exception when setting this to true.
-	 * 
-	 * @param recursiveUpdate
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSSaver#forceRecursiveUpdate(boolean)
 	 */
+	@Override
 	public GDSSaver forceRecursiveUpdate(boolean recursiveUpdate) {
 		this.recursiveUpdate = recursiveUpdate;
 		return this;
 	}
-
-	private void createEntity(boolean isEmbedded, final GDSCallback<Entity> callback) throws IllegalArgumentException, IllegalAccessException {
+	
+	private void createEntity(boolean isEmbedded, final GDSCallback<Entity> callback) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		if (fieldMap == null)
 			fieldMap = GDSField.createMapFromObject(pojo);
+		
+		GDSClass.onPreSave(gds, pojo);
 
 		String id = null;
 		if (!isEmbedded && specialID == null) {
@@ -122,7 +129,8 @@ public class GDSSaver {
 		testSuccess(callback, entity, gdsFields, blocker, null);
 	}
 	
-	private void addFieldToEntity(final GDSField field, final PropertyContainer entity, final GDSCallback<Void> callback) throws IllegalArgumentException, IllegalAccessException {
+	private void addFieldToEntity(final GDSField field, final PropertyContainer entity, final GDSCallback<Void> callback) throws IllegalArgumentException, IllegalAccessException,
+			InvocationTargetException {
 		if (field.fieldName.equals(GDSField.GDS_ID_FIELD)) {
 			callback.onSuccess(null, null);
 			return;
@@ -200,7 +208,8 @@ public class GDSSaver {
 			callback.onSuccess(null, null);
 	}
 	
-	private void storeCollectionOfPOJO(GDSField field, Object fieldValue, final GDSCallback<Collection<?>> callback) throws IllegalArgumentException, IllegalAccessException {
+	private void storeCollectionOfPOJO(GDSField field, Object fieldValue, final GDSCallback<Collection<?>> callback) throws IllegalArgumentException, IllegalAccessException,
+			InvocationTargetException {
 		final Collection<Object> pojosOrKeys = new ArrayList<Object>();
 		Collection<?> collection = (Collection<?>) fieldValue;
 		final List<GDSCallback<?>> datastoreSaveCallbacks = new ArrayList<>();
@@ -234,8 +243,9 @@ public class GDSSaver {
 		if (datastoreSaveCallbacks.isEmpty())
 			callback.onSuccess(pojosOrKeys, null);
 	}
-
-	private void storeMapOfPOJO(GDSField field, Object fieldValue, final GDSCallback<EmbeddedEntity> callback) throws IllegalArgumentException, IllegalAccessException {
+	
+	private void storeMapOfPOJO(GDSField field, Object fieldValue, final GDSCallback<EmbeddedEntity> callback) throws IllegalArgumentException, IllegalAccessException,
+			InvocationTargetException {
 		final EmbeddedEntity mapEntity = new EmbeddedEntity();
 		Map<?, ?> map = (Map<?, ?>) fieldValue;
 		final List<Object> datastoreSaveCallbacks = Collections.synchronizedList(new ArrayList<>());
@@ -309,7 +319,7 @@ public class GDSSaver {
 	}
 
 	private void createKeyForRegularPOJO(final Object fieldValue, final GDSCallback<Key> callback) throws IllegalArgumentException, IllegalAccessException {
-		String kind = GDSClass.fixName(GDSClass.getBaseClass(fieldValue.getClass()).getName());
+		final String fieldValueKind = GDSClass.getKind(fieldValue);
 		Map<String, GDSField> map = GDSField.createMapFromObject(fieldValue);
 		final GDSField idfield = map.get(GDSField.GDS_ID_FIELD);
 		Object idFieldValue = GDSField.getValue(idfield, fieldValue);
@@ -317,10 +327,10 @@ public class GDSSaver {
 		if (recursiveUpdate || id == null || fieldValue.getClass().isAnnotationPresent(AlwaysPersist.class)) {
 			if (alreadyStoredObjects.contains(fieldValue)) {
 				// We've already saved this object from this call, no need to save it again
-				callback.onSuccess(new Key(kind, id), null);
+				callback.onSuccess(new Key(fieldValueKind, id), null);
 			} else {
 				alreadyStoredObjects.add(fieldValue);
-				GDSSaver saver = new GDSSaver(this);
+				GDSSaverImpl saver = new GDSSaverImpl(this);
 				saver.fieldMap = map;
 				saver.pojo = fieldValue;
 				if (id == null) {
@@ -333,8 +343,7 @@ public class GDSSaver {
 					public void onSuccess(Key key, Throwable err) {
 						try {
 							String id = (String) GDSField.getValue(idfield, fieldValue);
-							String kind = GDSClass.fixName(GDSClass.getBaseClass(fieldValue.getClass()).getName());
-							callback.onSuccess(new Key(kind, id), err);
+							callback.onSuccess(new Key(fieldValueKind, id), err);
 						} catch (Throwable e) {
 							callback.onSuccess(null, e);
 						}
@@ -342,7 +351,7 @@ public class GDSSaver {
 				});
 			}
 		} else {
-			callback.onSuccess(new Key(kind, id), null);
+			callback.onSuccess(new Key(fieldValueKind, id), null);
 		}
 	}
 
@@ -359,6 +368,10 @@ public class GDSSaver {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSSaver#now()
+	 */
+	@Override
 	public Key now() {
 		final List<Key> lock = new LinkedList<>();
 		final List<Throwable> errList = new LinkedList<>();
@@ -402,6 +415,10 @@ public class GDSSaver {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSSaver#later(com.rc.gds.interfaces.GDSCallback)
+	 */
+	@Override
 	public void later(final GDSCallback<Key> callback) {
 		try {
 			createEntity(false, new GDSCallback<Entity>() {
@@ -422,6 +439,7 @@ public class GDSSaver {
 								GDSField verField = fieldMap.get(GDSField.GDS_VERSION_FIELD);
 								if (verField != null)
 									verField.field.setLong(pojo, key.version);
+								GDSClass.onPostSave(gds, pojo);
 								callback.onSuccess(key, err);
 							} catch (Throwable e) {
 								callback.onSuccess(null, e);
@@ -435,6 +453,10 @@ public class GDSSaver {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.rc.gds.GDSSaver#result()
+	 */
+	@Override
 	public GDSResult<Key> result() {
 		GDSAsyncImpl<Key> result = new GDSAsyncImpl<>();
 		later(result);
@@ -445,7 +467,7 @@ public class GDSSaver {
 		try {
 			// Save to datastore
 			if (entity.id != null && isUpdate) {
-				UpdateRequestBuilder builder = gds.client.prepareUpdate(gds.indexFor(entity.getKind()), entity.getKind(), entity.id);
+				UpdateRequestBuilder builder = gds.getClient().prepareUpdate(gds.indexFor(entity.getKind()), entity.getKind(), entity.id);
 				builder.setDoc(entity.getDBDbObject());
 				Long ver = entity.getVersion();
 				if (ver != null)
@@ -465,7 +487,7 @@ public class GDSSaver {
 					}
 				});
 			} else {
-				IndexRequestBuilder builder = gds.client.prepareIndex(gds.indexFor(entity.getKind()), entity.getKind());
+				IndexRequestBuilder builder = gds.getClient().prepareIndex(gds.indexFor(entity.getKind()), entity.getKind());
 				builder.setSource(entity.getDBDbObject());
 				if (entity.id != null)
 					builder.setId(entity.id);
@@ -487,9 +509,9 @@ public class GDSSaver {
 			callback.onSuccess(null, e);
 		}
 	}
-
-	private void createEmbeddedEntity(Object object, final GDSCallback<EmbeddedEntity> callback) throws IllegalArgumentException, IllegalAccessException {
-		GDSSaver saver = new GDSSaver(this);
+	
+	private void createEmbeddedEntity(Object object, final GDSCallback<EmbeddedEntity> callback) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		GDSSaverImpl saver = new GDSSaverImpl(this);
 		saver.pojo = object;
 		saver.createEntity(true, new GDSCallback<Entity>() {
 

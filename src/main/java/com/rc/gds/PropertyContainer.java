@@ -2,7 +2,7 @@ package com.rc.gds;
 
 import java.util.Map;
 
-interface PropertyContainer {
+public interface PropertyContainer {
 
 	public void setProperty(String key, Object val);
 

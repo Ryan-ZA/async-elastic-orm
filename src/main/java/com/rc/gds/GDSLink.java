@@ -2,7 +2,7 @@ package com.rc.gds;
 
 import java.util.Collection;
 
-class GDSLink {
+public class GDSLink {
 
 	Object pojo;
 	Collection<Object> collection;

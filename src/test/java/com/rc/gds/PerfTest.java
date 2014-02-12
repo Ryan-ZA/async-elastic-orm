@@ -17,33 +17,27 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.rc.gds.interfaces.GDS;
 import com.rc.gds.interfaces.GDSResult;
 
 public class PerfTest {
 	
 	private static GDS getGDS() {
-		return new GDS(false, "gdstest");
+		return new GDSImpl(false, "gdstest");
 	}
 	
 	@Before
 	public void testSetup() {
-		try {
-			getGDS().client.admin().indices().prepareDelete().execute().actionGet();
-		} catch (Exception ex) {
-		}
-		getGDS();
+		getGDS().getClient().admin().indices().prepareDelete("*").execute().actionGet();
 	}
 	
 	@After
 	public void testCleanup() {
-		try {
-			getGDS().client.admin().indices().prepareDelete().execute().actionGet();
-		} catch (Exception ex) {
-		}
+		getGDS().getClient().admin().indices().prepareDelete("*").execute().actionGet();
 	}
 	
 	private void refreshIndex() {
-		getGDS().client.admin().indices().prepareRefresh().execute().actionGet();
+		getGDS().getClient().admin().indices().prepareRefresh().execute().actionGet();
 	}
 	
 	@BeforeClass
@@ -54,7 +48,7 @@ public class PerfTest {
 			map.put("__GDS_CLASS_FIELD", "com_rc_gds_TestParent");
 			map.put("__GDS_FILTERCLASS_FIELD", new String[] { "com_rc_gds_TestParent" });
 			
-			IndexResponse r = getGDS().client.prepareIndex("test", "test").setSource(map).execute().actionGet();
+			IndexResponse r = getGDS().getClient().prepareIndex("test", "test").setSource(map).execute().actionGet();
 			Assert.assertNotNull(r.getId());
 			if (i % 1000 == 0)
 				System.out.println("Done " + i);
@@ -72,7 +66,7 @@ public class PerfTest {
 			map.put("__GDS_CLASS_FIELD", "com_rc_gds_TestParent");
 			map.put("__GDS_FILTERCLASS_FIELD", new String[] { "com_rc_gds_TestParent" });
 			
-			IndexResponse r = getGDS().client.prepareIndex("test", "test").setSource(map).execute().actionGet();
+			IndexResponse r = getGDS().getClient().prepareIndex("test", "test").setSource(map).execute().actionGet();
 			Assert.assertNotNull(r.getId());
 			if (i % 1000 == 0)
 				System.out.println("Done " + i);
@@ -133,7 +127,7 @@ public class PerfTest {
 					.array("__GDS_FILTERCLASS_FIELD", "com_rc_gds_TestParent")
 					.endObject();
 			
-			IndexResponse r = getGDS().client.prepareIndex("test", "test").setSource(builder).execute().actionGet();
+			IndexResponse r = getGDS().getClient().prepareIndex("test", "test").setSource(builder).execute().actionGet();
 			Assert.assertNotNull(r.getId());
 			if (i % 1000 == 0)
 				System.out.println("Done " + i);
@@ -172,14 +166,14 @@ public class PerfTest {
 			map.put("__GDS_CLASS_FIELD", "com_rc_gds_TestParent");
 			map.put("__GDS_FILTERCLASS_FIELD", new String[] { "com_rc_gds_TestParent" });
 			
-			getGDS().client.prepareIndex("test", "test").setSource(map).execute().actionGet();
+			getGDS().getClient().prepareIndex("test", "test").setSource(map).execute().actionGet();
 		}
 		
 		refreshIndex();
 		
 		long time = System.currentTimeMillis();
 		for (int i = 0; i < 100; i++) {
-			SearchResponse response = getGDS().client.prepareSearch("test")
+			SearchResponse response = getGDS().getClient().prepareSearch("test")
 					.setQuery(QueryBuilders.matchAllQuery())
 					.setSize(1000)
 					.execute().actionGet();
